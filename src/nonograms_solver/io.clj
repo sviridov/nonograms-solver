@@ -22,4 +22,4 @@
 
 (defn print-nonogram [rows]
   (each rows print-nonogram-row)
-  (newline))
+  (flush))
