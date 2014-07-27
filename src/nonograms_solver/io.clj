@@ -1,5 +1,10 @@
 
-(ns nonograms-solver.io)
+(ns nonograms-solver.io
+  (:use [clojure.java.io :only (reader)]))
+
+(defn read-nonogram [filename]
+  (with-open [input (java.io.PushbackReader. (reader filename))]
+    (read input)))
 
 (defn- each [xs function]
   (when (seq xs)
