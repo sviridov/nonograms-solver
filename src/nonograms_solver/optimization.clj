@@ -21,10 +21,12 @@
 (defn rotate-nonogram [nonogram directions]
   (reduce rotate-nonogram-in-direction nonogram directions))
 
+(defn- hint-score [hint]
+  (+ (count hint)
+     (reduce + 0 hint)))
+
 (defn- score [direction-hints]
-  (+ (count direction-hints)
-     (reduce + 0
-       (map #(reduce + 0 %) direction-hints))))
+  (reduce + 0 (map hint-score direction-hints)))
 
 (defn- need-to-rotate? [direction-hints]
   (let [size (count direction-hints)
@@ -36,3 +38,10 @@
 
 (defn rotate-directions [hints]
   (filter #(need-to-rotate? ((opposite-direction %) hints)) [:horizontal :vertical]))
+
+(defn sorted-lines [rows columns horizontal-hints vertical-hints]
+  (let [lines-with-hints (->> (map vector (concat rows columns)
+                                          (concat horizontal-hints vertical-hints))
+                              (sort-by (comp hint-score second) >))]
+    (list (map first lines-with-hints)
+          (map second lines-with-hints))))

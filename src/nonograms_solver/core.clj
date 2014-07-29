@@ -6,34 +6,29 @@
         [clojure.core.logic.fd :only (+ domain in)]
          nonograms-solver.optimization))
 
-(defne match-row-pattern [pattern row chain?]
+(defne match-line-pattern [pattern line chain?]
   ([[ ] [] _])
   ([[0] [] _])
 
-  ([[0 . pattern-tail] [0 . row-tail] true]
-     (match-row-pattern pattern-tail row-tail false))
+  ([[0 . pattern-tail] [0 . line-tail] true]
+     (match-line-pattern pattern-tail line-tail false))
 
-  ([[counter . pattern-tail] [1 . row-tail] _]
+  ([[counter . pattern-tail] [1 . line-tail] _]
      (< 0 counter)
      (fresh [new-counter new-pattern]
        (+ new-counter 1 counter)
        (conso new-counter pattern-tail new-pattern)
-       (match-row-pattern new-pattern row-tail true)))
+       (match-line-pattern new-pattern line-tail true)))
 
-  ([_ [0 . row-tail] false]
-     (match-row-pattern pattern row-tail false)))
+  ([_ [0 . line-tail] false]
+     (match-line-pattern pattern line-tail false)))
 
-(defn- constrain-rows [rows hints]
-  (if (and (empty? rows) (empty? hints))
+(defn- constrain-lines [lines hints]
+  (if (and (empty? lines) (empty? hints))
     succeed
     (all
-      (match-row-pattern (first hints) (first rows) false)
-      (constrain-rows (rest rows) (rest hints)))))
-
-(defn- interleave-with-rest [xs ys]
-  (cond (and (seq xs) (seq ys)) (cons (first xs) (interleave-with-rest ys (rest xs)))
-        (seq xs) xs
-        (seq ys) ys))
+      (match-line-pattern (first hints) (first lines) false)
+      (constrain-lines (rest lines) (rest hints)))))
 
 (defn solve [hints]
   (let [rotate-directions (rotate-directions hints)
@@ -52,8 +47,7 @@
         result (->> (run 1 [result]
                       (== result cells)
                       (everyg #(in % (domain 0 1)) cells)
-                      (constrain-rows (interleave-with-rest rows columns)
-                                      (interleave-with-rest horizontal-hints vertical-hints)))
+                      (apply constrain-lines (sorted-lines rows columns horizontal-hints vertical-hints)))
                     (first)
                     (partition grid-width))]
     (rotate-nonogram result rotate-directions)))
