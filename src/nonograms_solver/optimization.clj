@@ -31,10 +31,8 @@
 (defn- need-to-rotate? [direction-hints]
   (let [size (count direction-hints)
         first-half (take (quot size 2) direction-hints)
-        second-half (drop (+ (quot size 2) (rem size 2)) direction-hints)
-        first-half-score (score first-half)
-        second-half-score (score second-half)]
-    (< first-half-score second-half-score)))
+        second-half (drop (+ (quot size 2) (rem size 2)) direction-hints)]
+    (< (score first-half) (score second-half))))
 
 (defn rotate-directions [hints]
   (filter #(need-to-rotate? ((opposite-direction %) hints)) [:horizontal :vertical]))

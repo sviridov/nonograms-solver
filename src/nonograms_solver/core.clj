@@ -41,13 +41,15 @@
         grid-size   (* grid-width grid-height)
 
         cells   (repeatedly grid-size lvar)
-        rows    (->> cells (partition grid-width) (map vec) (into []))
+        rows    (partition grid-width cells)
         columns (apply map vector rows)
+
+        lines (sorted-lines rows columns horizontal-hints vertical-hints)
 
         result (->> (run 1 [result]
                       (== result cells)
                       (everyg #(in % (domain 0 1)) cells)
-                      (apply constrain-lines (sorted-lines rows columns horizontal-hints vertical-hints)))
+                      (apply constrain-lines lines))
                     (first)
                     (partition grid-width))]
     (rotate-nonogram result rotate-directions)))
