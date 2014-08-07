@@ -6,29 +6,32 @@
         [clojure.core.logic.fd :only (+ domain in)]
          nonograms-solver.optimization))
 
-(defne match-line-pattern [pattern line chain?]
-  ([[ ] [] _])
-  ([[0] [] _])
+(defne match-line-pattern [line pattern chain?]
+  ([[] [ ] _])
+  ([[] [0] _])
 
-  ([[0 . pattern-tail] [0 . line-tail] true]
-     (match-line-pattern pattern-tail line-tail false))
+  ([[0 . line-tail] [0 . pattern-tail] true]
+     (match-line-pattern line-tail pattern-tail false))
 
-  ([[counter . pattern-tail] [1 . line-tail] _]
+  ([[1 . line-tail] [counter . pattern-tail] _]
      (< 0 counter)
      (fresh [new-counter new-pattern]
        (+ new-counter 1 counter)
        (conso new-counter pattern-tail new-pattern)
-       (match-line-pattern new-pattern line-tail true)))
+       (match-line-pattern line-tail new-pattern true)))
 
-  ([_ [0 . line-tail] false]
-     (match-line-pattern pattern line-tail false)))
+  ([[0 . line-tail] _ false]
+     (match-line-pattern line-tail pattern false)))
 
 (defn- constrain-lines [lines hints]
-  (if (and (empty? lines) (empty? hints))
-    succeed
-    (all
-      (match-line-pattern (first hints) (first lines) false)
-      (constrain-lines (rest lines) (rest hints)))))
+  (cond (and (seq lines) (seq hints))
+        (all
+          (match-line-pattern (first lines) (first hints) false)
+          (constrain-lines (rest lines) (rest hints)))
+
+        (and (empty? lines) (empty? hints)) succeed
+
+        :else fail))
 
 (defn solve [hints]
   (let [rotate-directions (rotate-directions hints)

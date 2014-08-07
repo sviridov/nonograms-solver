@@ -6,5 +6,5 @@
 
 (defn -main [& args]
   (if (== (count args) 1)
-    (-> (first args) read-nonogram solve print-nonogram)
-    (println "Usage: NonogramsSolver <file name>")))
+    (-> (first args) read-hints solve print-nonogram)
+    (println "Usage: NonogramsSolver <filename>")))

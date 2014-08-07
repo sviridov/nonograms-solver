@@ -2,7 +2,7 @@
 (ns nonograms-solver.io
   (:use [clojure.java.io :only (reader)]))
 
-(defn read-nonogram [filename]
+(defn read-hints [filename]
   (with-open [input (java.io.PushbackReader. (reader filename))]
     (read input)))
 
@@ -13,8 +13,8 @@
 
 (defn- print-nonogram-cell [cell]
   (if (zero? cell)
-    (print \space)
-    (print \X)))
+    (print " ")
+    (print "X")))
 
 (defn- print-nonogram-row [row]
   (each row print-nonogram-cell)
